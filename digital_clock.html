@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digital Clock in Javascript</title>
+  </head>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+    }
+    body{
+      background-color: #191D2D;
+    }
+    #clock {
+      width: 100%;
+      height: 80vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .main-clock{
+        flex-direction: column;
+        display: flex;
+    }
+    .main-clock span {
+      color: #fff;
+      font-size: 30px;
+      user-select: none;
+      border: 2px solid #fff;
+      padding: 20px;
+      border-radius: 5px;
+      transition: 0.2s ease;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .main-clock span:hover {
+      box-shadow: 0px 0px 20px lightgray;
+      transition: 0.2s ease;
+    }
+  </style>
+  <body>
+    <div id="clock">
+      <div class="main-clock">
+        <span id="time"></span>
+        <span id="date"></span>
+      </div>
+    </div>
+    <script>
+      function updateClock() {
+        // time start
+        const today = new Date();
+        const hours = today.getHours();
+        const minutes = today.getMinutes();
+        const seconds = today.getSeconds();
+        const hour = hours < 10 ? "0" + hours : hours;
+        const minute = minutes < 10 ? "0" + minutes : minutes;
+        const second = seconds < 10 ? "0" + seconds : seconds;
+        // using 12 hour format
+        const hourFormat = hours > 12 ? hours - 12 : hours;
+        const formattedHour = hourFormat < 10 ? "0" + hourFormat : hourFormat;
+        const ampm = formattedHour < 12 ? "Am" : "Pm";
+        let finalTime = formattedHour + " : " + minute + " : " + second + " " + ampm;
+         // time end
+         // day start
+         const date = today.getDate()
+         const month = today.getMonth();
+         const fullYear = today.getFullYear()
+         const allMonths = ['January','Feburary','March','April','May','June','July','August','September','October','November','December'];
+         let finalDate = date + " " + allMonths[month] + ' ' + fullYear;
+         // day end
+        document.querySelector(".main-clock #time").innerHTML = finalTime;
+        document.querySelector(".main-clock #date").innerHTML = finalDate;
+      }
+      setInterval(updateClock, 1000);
+      updateClock();
+    </script>
+  </body>
+</html>

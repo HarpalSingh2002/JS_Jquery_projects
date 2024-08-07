@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CRUD using Javascript</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    ::selection {
+        background-color: #FF735C;
+        color: #fff;
+    }
+    .form-control,
+    .form-select {
+        border-radius: 0;
+    }
+    .form-control:focus,
+    .form-select:focus {
+        box-shadow: 0px 0px 10px #FF735C;
+        border: 1px solid #FF735C;
+    }
+    table,
+    th,
+    td,
+    tr {
+        border: 1px solid;
+    }
+    .edit-btn {
+        background-color: #487988;
+        font-size: 16px;
+        padding: 5px 13px;
+        font-weight: 600;
+        color: #fff;
+        border: 2px solid #487988;
+        transition: 0.2s ease;
+    }
+    .edit-btn:hover {
+        background-color: transparent;
+        color: #487988;
+        transition: 0.2s ease;
+    }
+    .delete-btn {
+        background-color: #FF735C;
+        font-size: 16px;
+        padding: 5px 13px;
+        font-weight: 700;
+        color: #fff;
+        transition: 0.2s ease;
+        border: 2px solid #FF735C;
+    }
+    .delete-btn:hover {
+        background-color: transparent;
+        color: #FF735C;
+        transition: 0.2s ease;
+    }
+    .col-12 h1,
+    h2 {
+        color: #487988;
+    }
+    .submit-btn {
+        background-color: #ECECEC;
+        color: #000000;
+        border: 1px solid #000;
+    }
+    .submit-btn:hover {
+        background-color: #CCCCCC;
+        border: 1px solid #000;
+    }
+</style>
+<body>
+    <div class="container">
+        <div class="col-12">
+            <h1 class="text-center mt-3 fw-bold">Register Now</h1>
+        </div>
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-lg-4 col-md-5 col-10">
+                <!-- ADD IMAGE FORM YOU FOLDER -->
+                <img src="/img/register.png" class="img-fluid" alt="">
+            </div>
+            <div class="col-md-7 shadow border py-4 px-3 mx-auto">
+                <form class="row g-3" id="myForm">
+                    <div class="col-md-6">
+                        <label class="form-label">Name</label>
+                        <input id="name" type="text" class="form-control input-feild" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <input id="email" type="email" class="form-control input-feild" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">City</label>
+                        <input id="city" type="text" class="form-control input-feild" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">State</label>
+                        <select id="state" class="form-select input-feild">
+                            <option value="">Select</option>
+                            <option value="America">America</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Australia">Australia</option>
+                            <option value="London">London</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Address</label>
+                        <input id="address" type="text" class="form-control input-feild" />
+                    </div>
+                    <div class="col-12 text-center">
+                        <button id="submitBtn" type="submit" class="btn submit-btn fw-bold rounded-0">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="container my-5">
+        <div class="col-12">
+            <h2 class="text-center my-5 fw-bold">
+                List of All Candidates
+            </h2>
+        </div>
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-12">
+                <table class="table table-hover" id="myTable">
+                    <thead>
+                        <tr class="text-center">
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">City</th>
+                            <th scope="col">State</th>
+                            <th scope="col">Address</th>
+                            <th>Actions</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="text-center"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        let name = document.querySelector("#name");
+        let email = document.querySelector("#email");
+        let city = document.querySelector("#city");
+        let state = document.querySelector("#state");
+        let address = document.querySelector("#address");
+        let allInputs = document.querySelectorAll(".input-feild");
+        let submitButton = document.querySelector("#submitBtn");
+        let tableBody = document.querySelector("#table-body");
+        // Load data from localStorage
+        window.addEventListener("load", () => {
+            loadFromLocalStorage();
+        });
+        submitButton.addEventListener("click", (event) => {
+            event.preventDefault();
+            if (submitButton.dataset.editing) {
+                updateRow();
+            } else {
+                SubmitData();
+            }
+        });
+        function SubmitData() {
+            if (!FormValidation()) {
+                return;
+            }
+            let object = {};
+            object.name = name.value;
+            object.email = email.value;
+            object.city = city.value;
+            object.state = state.value;
+            object.address = address.value;
+            saveToLocalStorage(object);
+            loadFromLocalStorage();
+            SweeAlert("CRUD Operation", "Data Submitted SuccessFully", "success")
+            document.querySelector("#myForm").reset();
+            Edit_Data(newRow);
+            Delete_Data(newRow);
+        }
+        function Edit_Data(newRow) {
+            let edit_btn = document.createElement("button");
+            edit_btn.textContent = "Edit";
+            edit_btn.classList.add("edit-btn");
+            edit_btn.setAttribute("id", newRow.cells[0].textContent);
+            let edit_td = document.createElement("td");
+            edit_td.appendChild(edit_btn);
+            newRow.appendChild(edit_td);
+            edit_btn.addEventListener("click", () => {
+                name.value = newRow.cells[1].textContent;
+                email.value = newRow.cells[2].textContent;
+                city.value = newRow.cells[3].textContent;
+                state.value = newRow.cells[4].textContent;
+                address.value = newRow.cells[5].textContent;
+                submitButton.dataset.editing = newRow.cells[0].textContent;
+                submitButton.textContent = "Update";
+            });
+        }
+        function updateRow(newRow) {
+            let editingId = submitButton.dataset.editing;
+            let object = {
+                name: name.value,
+                email: email.value,
+                city: city.value,
+                state: state.value,
+                address: address.value
+            };
+            let rows = JSON.parse(localStorage.getItem("formData"));
+            if (rows) {
+                rows[editingId] = object;
+                localStorage.setItem("formData", JSON.stringify(rows));
+                loadFromLocalStorage();
+                document.querySelector("#myForm").reset();
+                submitButton.removeAttribute("data-editing");
+                submitButton.textContent = "Submit";
+                SweeAlert("CRUD Operation", "Data Updated Successfully", "success");
+            }
+        }
+        function Delete_Data(newRow){
+            let delete_btn = document.createElement("button");
+            delete_btn.textContent = "Delete";
+            delete_btn.classList.add("delete-btn");
+            let delete_td = document.createElement("td");
+            delete_td.appendChild(delete_btn);
+            newRow.appendChild(delete_td);
+            delete_btn.addEventListener("click", function () {
+                Swal.fire({
+                    title: "Are you sure You Want to Delete?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        newRow.remove();
+                        let rows = JSON.parse(localStorage.getItem("formData"));
+                        if (rows) {
+                            rows.splice(newRow.cells[0].textContent, 1);
+                            localStorage.setItem("formData", JSON.stringify(rows));
+                        }
+                    }
+                });
+            });
+        }
+        function FormValidation() {
+            let hasEmptyFields = false;
+            allInputs.forEach(function (item) {
+                if (item.value === "") {
+                    hasEmptyFields = true;
+                }
+            });
+            if (hasEmptyFields == true) {
+                SweeAlert("CRUD Operation", "Please Insert the values", "warning")
+                return false;
+            }
+            return true;
+        }
+        function saveToLocalStorage(dataArray) {
+            let rows = JSON.parse(localStorage.getItem("formData"));
+            if (rows) {
+                rows.push(dataArray);
+            } else {
+                rows = [dataArray];
+            }
+            localStorage.setItem("formData", JSON.stringify(rows));
+        }
+        function loadFromLocalStorage() {
+            $('#table-body').empty();
+            let rows = JSON.parse(localStorage.getItem("formData"));
+            if (rows) {
+                rows.forEach((data, key) => {
+                    let newRow = document.createElement("tr");
+                    newRow.classList.add("table-tr");
+                    newRow.innerHTML = `
+                        <td>${key}</td>
+                        <td>${data.name}</td>
+                        <td>${data.email}</td>
+                        <td>${data.city}</td>
+                        <td>${data.state}</td>
+                        <td>${data.address}</td>
+                    `;
+                    tableBody.appendChild(newRow);
+                        Edit_Data(newRow);
+                        Delete_Data(newRow);
+                });
+            }
+            new DataTable('#myTable', {
+            });
+        }
+        function SweeAlert(title, text, icon) {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: icon
+            });
+        }
+    </script>
+</body>
+</html>

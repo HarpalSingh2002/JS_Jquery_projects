@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the number using javascript</title>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+        font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;
+    }
+    ::selection{
+        background-color: black;
+        color: white;
+    }
+    .main{
+        width: 100%;
+        height: 100vh;
+        background-color: darkslategray;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .game-box{
+        width: 30%;
+        height: auto;
+        border: 2px solid #fff;
+        box-shadow: 0px 0px 10px white;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .game-info h1{
+        color: #fff;
+        text-align: center;
+        margin-top: 20px;
+    }
+     .game-info p{
+        color: #fff;
+        font-size: 16px;
+        word-spacing: 1px;
+        text-align: center;
+        padding: 10px 0px;
+    }
+    .game-field input{
+        width: 90%;
+        height: 5vh;
+        margin-left: 20px;
+        margin-top: 20px;
+        font-size: 25px;
+        text-align: center;
+        font-weight: 600;
+    }
+    .game-button{
+        display: flex;
+        justify-content: center;
+        margin: 10px 0px;
+    }
+    .game-button button{
+        font-size: 18px;
+        padding: 5px 10px;
+        border-radius: 2px;
+        border: none;
+        background-color: #000;
+        color: #fff;
+        cursor: pointer;
+        transition: .2s ease;
+      font-weight: 700;
+    }
+    .game-button button:hover{
+       background-color: #fff;
+       color: #000;
+       box-shadow: 0px 0px 10px white;
+       transition: .2s ease;
+    }
+   .game-output p {
+    color: #fff;
+    margin: 10px;
+    text-align: center;
+   }
+   .game-result h2{
+    color: #fff;
+    text-align: center;
+    margin-top: 20px;
+   }
+   #error{
+    color: #fff;
+    margin: 10px 20px;
+    font-size: 18px;
+   }
+</style>
+<body>
+    <div class="main">
+        <div class="game-box">
+            <div class="game-field">
+                <input type="text" id="game_input">
+                <p id="error"></p>
+            </div>
+            <div class="game-info">
+                <h1>Guess the Number</h1>
+                <p>You have to guess the right number between 1 to 100, you have 10 chances of guessing the right number.</p>
+            </div>
+            <div class="game-button">
+                <button id="game_btn">Submit</button>
+            </div>
+            <div class="game-output">
+                <p id="prev_output">Previous Outputs : <span></span> </p>
+                <p id="chances">No of Chances Left : <span>10</span> </p>
+            </div>
+            <div class="game-result">
+                <h2></h2>
+            </div>
+        </div>
+    </div>
+    <script>
+        let chances = 10;
+        let btn = document.querySelector('#game_btn');
+        let input = document.querySelector('#game_input');
+        let number = Math.floor(Math.random() * 100);
+        let prevGuesses = [];
+        console.log(number)
+        btn.addEventListener('click', () => {
+            let value = Number(input.value);
+            if(value == ''){
+                alert('Please Insert the number')
+            }
+            if(value > 100){
+                alert('Your Number is Greater than 100');
+            }
+            if(value < 0){
+                alert('Your Number is Smaller than 0');
+            }
+            if(number === value){
+                document.querySelector('.game-result h2').textContent = 'You Won';
+            }
+            if(number !== value){
+                input.value = '';
+                document.querySelector('#chances span').textContent = --chances;
+                if( document.querySelector('#chances span').textContent == 0){
+                    document.querySelector('.game-result h2').textContent = 'Game Over';
+                }
+                prevGuesses.push(value);
+                document.querySelector('#prev_output span').textContent = prevGuesses.join(', ');
+            }
+        })
+    </script>
+</body>
+</html>

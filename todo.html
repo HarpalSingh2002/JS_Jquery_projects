@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo using Jquery With Local Storage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Raleway", sans-serif;
+        user-select: none;
+    }
+    .container {
+        width: 100%;
+        height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url('https://plus.unsplash.com/premium_photo-1661963783275-dff88a0296f6?q=80&w=1738&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    .main-content {
+        width: 40%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        margin-top: -30%;
+    }
+    .main-content h1 {
+        color: #fff;
+        text-shadow: 7px 7px 5px rgba(0, 0, 0, 0.712);
+        text-transform: capitalize;
+        font-size: 35px;
+        position: relative;
+        text-align: center;
+    }
+    .main-content h1::after {
+        position: absolute;
+        content: "";
+        background-color: #fff;
+        width: 100%;
+        height: 3px;
+        left: 0%;
+        bottom: -10px;
+    }
+    .main-content .task-field {
+        width: 100%;
+        height: auto;
+        display: flex;
+        justify-content: center;
+        align-items: end;
+    }
+    .main-content .task-field input {
+        width: 70%;
+        height: 6vh;
+        font-size: 17px;
+        padding: 5px 10px;
+        margin-top: 2em;
+        border: 1px solid #000;
+        background-color: #fff;
+        color: #000;
+        border-radius: 5px;
+        outline: none;
+    }
+    .add-btn {
+        padding: 13px 17px;
+        color: #000;
+        background-color: #fff;
+        border: 1px solid #000;
+        transition: all ease 100ms;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+        margin-left: 10px;
+        border-radius: 5px;
+    }
+    .add-btn:hover {
+        background-color: rgb(27, 27, 27);
+        color: #fff;
+        border: 1px solid #fff;
+    }
+    .task-list {
+        width: 50%;
+        height: auto;
+        background-color: white;
+        position: absolute;
+    }
+    .task-list ul {
+        list-style: none;
+        padding: 0px 10px;
+        height: auto;
+    }
+    .task-list ul li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px 0px;
+    }
+    .task-list ul li input[type="checkbox"]{
+        margin-right: 10px;
+    }
+    .task-list ul li span {
+        text-transform: capitalize;
+        font-size: 20px;
+        color: #000;
+    }
+    .task-list ul li .btns {
+        width: 6%;
+    }
+    .task-list ul li .btns .delete-btn {
+        font-size: 20px;
+        padding: 5px 10px;
+        border: 1px solid #000;
+        background-color: #fff;
+        cursor: pointer;
+    }
+    .cut-task {
+        animation: cutAnimation 0.5s forwards;
+    }
+    @keyframes cutAnimation {
+        0% {
+            opacity: 1;
+            transform: scaleY(1);
+        }
+        100% {
+            opacity: 0;
+            transform: scaleY(0);
+        }
+    }
+    @media only screen and (max-width: 600px) {
+        .main-content {
+            width: 100%;
+        }
+        .main-content h1 {
+            font-size: 20px;
+        }
+        .main-content input {
+            width: 70%;
+            height: 4vh;
+            font-size: 15px;
+            margin-top: 1.5em;
+        }
+        .main-content {
+            margin-top: -90%;
+        }
+        .task-list {
+            width: 90%;
+        }
+        .task-list ul li span {
+            font-size: 17px;
+        }
+        .task-list ul li .btns {
+            width: 10%;
+        }
+        .task-list ul li .btns button {
+            font-size: 15px !important;
+        }
+    }
+</style>
+<body>
+    <div class="container">
+        <div class="main-content">
+            <h1>to - do list</h1>
+            <div class="task-field">
+                <input type="text" id="task-input" placeholder="Add Your Task">
+                <button class="add-btn">Add</button>
+            </div>
+        </div>
+        <div class="task-list">
+            <ul id="all-lists"></ul>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+            loadTasks();
+            $('.task-field button').click(function () {
+                if (!Validation()) {
+                    return;
+                }
+                let taskName = $('#task-input').val();
+                let taskData = {
+                    name: taskName,
+                    checked: false
+                };
+                let taskElement = createTaskElement(taskData);
+                $('.task-list #all-lists').append(taskElement);
+                saveTasks();
+            });
+            $(document).on('click', '.delete-btn', function () {
+                $(this).closest('li').remove();
+                saveTasks();
+            });
+            $(document).on('change', 'input[type="checkbox"]', function () {
+                let $task = $(this).closest('li');
+                if ($(this).is(':checked')) {
+                    $task.addClass('cut-task');
+                    setTimeout(function () {
+                        $task.remove();
+                        saveTasks();
+                    }, 500);
+                } else {
+                    saveTasks();
+                }
+            });
+        });
+        function Validation() {
+            function SweeAlert(title, text, icon) {
+                Swal.fire({
+                    title: title,
+                    text: text,
+                    icon: icon
+                });
+                return false;
+            }
+            if ($('#task-input').val() == '') {
+                SweeAlert('Todo List', 'Please Add the Task', 'warning');
+                return false;
+            }
+            return true;
+        }
+        function createTaskElement(taskData) {
+            let task_name = $('<span></span>').html(taskData.name);
+            let check = $('<input type="checkbox">').prop('checked', taskData.checked);
+            let check_div = $('<div></div>').addClass('list-name'). append(check).append(task_name);
+            let del_btn = $('<button></button>').addClass('delete-btn').html('<i class="ri-close-line"></i>');
+            let btn_div = $('<div></div>').addClass('btns').append(del_btn);
+            let li = $('<li></li>').append(check_div).append(btn_div);
+            return li;
+        }
+        function saveTasks() {
+            let tasks = [];
+            $('.task-list #all-lists li').each(function () {
+                let taskName = $(this).find('.list-name span').text();
+                let checked = $(this).find('input[type="checkbox"]').is(':checked');
+                tasks.push({ name: taskName, checked: checked });
+            });
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+        function loadTasks() {
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.forEach(taskData => {
+                let taskElement = createTaskElement(taskData);
+                $('.task-list #all-lists').append(taskElement);
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
